@@ -109,6 +109,23 @@ void unit_test_expected_error_not_received(const char *fail_msg,
 	unit_test_expect(false, fail_msg, fail_msg_length);
 }
 
+void unit_test_expected_output_received(void)
+{
+	unit_test_expect(true, NULL, 0);
+}
+
+void unit_test_asserted_output_not_received(const char *fail_msg,
+					   size_t fail_msg_length)
+{
+	unit_test_assert(false, fail_msg, fail_msg_length);
+}
+
+void unit_test_expected_output_not_received(const char *fail_msg,
+					   size_t fail_msg_length)
+{
+	unit_test_expect(false, fail_msg, fail_msg_length);
+}
+
 static void run_test(const struct unit_test *test)
 {
 	struct error error;
