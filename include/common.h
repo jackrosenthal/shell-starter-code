@@ -52,9 +52,9 @@
 #define __noreturn __attribute__((noreturn))
 
 #ifdef __GNUC__
-#define __error(msg) __attribute__((error(msg)))
+#define __error_if_used(msg) __attribute__((error(msg)))
 #else
-#define __error(msg) __discard
+#define __error_if_used(msg) __discard
 #endif
 
 #endif /* _COMMON_H */

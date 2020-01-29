@@ -26,7 +26,8 @@ int run_tests(int argc, char **argv);
 #ifdef TEST_BUILD
 #define __test_only
 #else
-#define __test_only __error("This function may only be used in unit tests.")
+#define __test_only \
+	__error_if_used("This function may only be used in unit tests.")
 #endif
 
 #ifdef TEST_BUILD
