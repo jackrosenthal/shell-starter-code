@@ -122,7 +122,7 @@ run-%:
 
 .PHONY: debug-%
 debug-%:
-	$(call cmd,run,$(OUTDIR)/debug/$(call binpath,$(patsubst debug-%,%,$@)))
+	$(call cmd,gdb,$(OUTDIR)/debug/$(call binpath,$(patsubst debug-%,%,$@)))
 
 .PHONY: run-tests
 run-tests:
