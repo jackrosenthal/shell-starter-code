@@ -1,9 +1,11 @@
 #include <stddef.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 
 #include "arena.h"
 #include "error.h"
+#include "unit.h"
 
 #define ARENA_DEFAULT_PAGE_SIZE (1 << 20) /* 1 MB */
 
@@ -13,11 +15,19 @@ struct arena_header {
 	struct arena_header *parent;
 };
 
+static size_t increase_size_to_align(size_t size)
+{
+	if (size % 8 != 0)
+		size += 8 - (size % 8);
+	return size;
+}
+
 static void arena_new_page(struct arena *arena, size_t page_size)
 {
-	struct arena_header *page =
-		checked_malloc(1, sizeof(struct arena_header) + page_size);
-	page->ptr = ((void *)page) + sizeof(struct arena_header);
+	const size_t header_size =
+		increase_size_to_align(sizeof(struct arena_header));
+	struct arena_header *page = checked_malloc(1, header_size + page_size);
+	page->ptr = ((void *)page) + header_size;
 	page->bytes_left = page_size;
 	page->parent = arena->pages;
 	arena->pages = page;
@@ -26,6 +36,7 @@ static void arena_new_page(struct arena *arena, size_t page_size)
 void *arena_malloc(struct arena *arena, size_t member_size, size_t count)
 {
 	size_t allocation_size = checked_multiply(member_size, count);
+	allocation_size = increase_size_to_align(allocation_size);
 
 	if (!allocation_size)
 		return NULL;
@@ -71,4 +82,16 @@ void arena_free(struct arena *arena)
 		page = parent;
 	}
 	arena->pages = NULL;
+}
+
+DEFTEST("arena.alignment")
+{
+	struct arena arena = { NULL };
+	const int sizes[] = { 1, 7, 8, 0, 4, 10, 15, 16, 21, 77, 3 };
+
+	for (size_t i = 0; i < ARRAY_SIZE(sizes); i++) {
+		void *ptr = arena_malloc(&arena, sizes[i], 1);
+		EXPECT(((uintptr_t)ptr) % 8 == 0);
+	}
+	arena_free(&arena);
 }
