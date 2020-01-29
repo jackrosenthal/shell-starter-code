@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 CC:=gcc
 CXX:=g++
 LIBS:=-lreadline -lhistory -lcgraph -lgvc
