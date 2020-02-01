@@ -160,6 +160,7 @@ int run_tests(int argc, char **argv)
 	for (size_t test_num = 0; test_num < num_tests; test_num++) {
 		printf("\r\x1b[2KRunning test %zu/%zu (%s)...", test_num,
 		       num_tests, test->name);
+		fflush(stdout);
 		int pipefd[2];
 		checked_pipe(pipefd);
 		pid_t pid = checked_fork();
