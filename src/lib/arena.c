@@ -41,7 +41,10 @@ void *arena_malloc(struct arena *arena, size_t member_size, size_t count)
 	if (!allocation_size)
 		return NULL;
 
-	size_t bytes_left = (arena->pages != NULL) && arena->pages->bytes_left;
+	size_t bytes_left = 0;
+	if (arena->pages != NULL)
+		bytes_left = arena->pages->bytes_left;
+
 	if (allocation_size > bytes_left) {
 		size_t new_page_size = ARENA_DEFAULT_PAGE_SIZE;
 		if (new_page_size < allocation_size)
