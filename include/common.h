@@ -57,4 +57,9 @@
 #define __error_if_used(msg) __discard
 #endif
 
+/* Make __auto_type available to C++ */
+#if defined(__cplusplus) && !defined(__auto_type)
+#define __auto_type auto
+#endif
+
 #endif /* _COMMON_H */
