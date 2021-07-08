@@ -141,4 +141,41 @@ void __test_only unit_test_expected_error_not_received(const char *fail_msg,
 		not_received_func(___with_strlen(errormsg));            \
 	} while (0)
 
+#define ASSERT_OUTPUTS(outputfd, message, expr)                                  \
+	___assert_outputs(                                                \
+		outputfd, message, __builtin_strlen(message), expr, unit_test_asserted_output_not_received, \
+		___format_fail_string(ASSERT_OUTPUT, __FILE__, __LINE__, \
+				      "function did not output", message))
+
+#define EXPECT_OUTPUTS(outputfd, message, expr)                                  \
+	___assert_outputs(                                                \
+		outputfd, message, __builtin_strlen(message), expr, unit_test_expected_output_not_received, \
+		___format_fail_string(EXPECT_OUTPUT, __FILE__, __LINE__, \
+				      "function did not output", message))
+
+#define ___assert_outputs(outputfd, output, output_size, expr, not_received_func, errormsg) \
+	do {                                                            \
+		int pipefd[2];											\
+		checked_pipe(pipefd);									\
+    	checked_dup2(pipefd[1], outputfd);						\
+		expr;                                                   \
+		checked_close(pipefd[1]);								\
+		char buffer[4086];										\
+		int n;													\
+		int count = 0;											\
+		while(!(n = checked_read(pipefd[0], 					\
+					&buffer[count], 4086))						\
+				 	&& count < output_size){ 					\
+			count += n;											\
+		}														\
+		checked_close(pipefd[0]);								\
+		if(strncmp(output, buffer, output_size) != 0){			\
+			not_received_func(___with_strlen(errormsg));        \
+			break;												\
+		}else{													\
+			unit_test_expected_output_received();				\
+			break;												\
+		}														\
+	} while (0)			
+
 #endif /* _UNIT_H */
